@@ -1,6 +1,13 @@
 <html>
 
     <head>
+        <title>${.settings.project_title}</title>
+
+
+        <link rel="icon"
+              type="image/png"
+              href="${frame.filename|'thumbnail'(processor='favicon')}">
+
 
         <style type="text/css">
 
@@ -83,6 +90,7 @@
         .refresh-bar.countdown
         {
             width:100%;
+            transition:width ${.app.settings.refresh}s;
         }
 
         </style>

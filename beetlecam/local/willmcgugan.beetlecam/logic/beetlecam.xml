@@ -54,6 +54,10 @@
             <image:resize-to-fit width="640" height="480" resample="nearest"/>
             <image:gaussian-blur radius="6"/>
         </tn:processor>
+        <tn:processor name="favicon" format="png">
+            <image:square/>
+            <image:resize width="64" height="64"/>
+        </tn:processor>
     </tn:thumbnails>
 
 </moya>

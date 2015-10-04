@@ -12,11 +12,7 @@
         <import py="moya.libs.widgets"/>
         <import py="moya.libs.wysihtml5"/>
         <import py="moya.libs.thumbnail"/>
-        <import py="moya.libs.favicon"/>
 
-
-        <!-- Install applications (instances of a library) -->
-        <install name="favicon" lib="moya.favicon" mount="/"/>
         <install name="forms" lib="moya.forms"/>
         <install name="widgets" lib="moya.widgets"/>
         <install name="media" lib="moya.static" mount="/static/"/>
