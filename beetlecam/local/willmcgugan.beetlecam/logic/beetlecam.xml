@@ -21,7 +21,7 @@
     </view>
 
     <form libname="form.frame.upload" style="horizontal" xmlns="http://moyaproject.com/forms">
-        <input name="taken" label="Taken" type="datetime-local" initial=".now.local.html5_datetime" required="yes"/>
+        <input name="taken" label="Taken" type="integer" initial="int:.now.utc.epoch" help="epoch time" required="yes"/>
         <input name="password" label="Password" required="yes" help="see settings.ini for the password"/>
         <upload name="image" label="Upload" required="yes"/>
         <submit-button text="Upload"/>
@@ -41,7 +41,7 @@
     <view libname="view.frame.upload" content="#content.base">
         <forms:get form="#form.frame.upload" dst="form" />
         <forms:validate src="form">
-            <let taken="datetime:form.data.taken" />
+            <let taken="(epoch:form.data.taken).local" />
             <str dst="filename">${taken.year}/${taken.month}/${taken.day}/frame${taken.hour::'02'}-${taken.minute::'02'}-${taken.second::'02'}.jpg</str>
             <fs:set-contents fs="uploads" path="${filename}" contents="form.data.image"/>
             <db:create model="#Frame" let:taken="taken" let:filename="filename"/>
