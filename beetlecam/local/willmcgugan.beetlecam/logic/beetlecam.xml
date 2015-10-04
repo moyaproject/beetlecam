@@ -50,9 +50,8 @@
     </view>
 
     <tn:thumbnails libname="thumbnails" name="cam">
-        <tn:processor name="blur" version="3">
+        <tn:processor name="blur" version="4">
             <image:resize-to-fit width="640" height="480"/>
-            <image:gaussian-blur radius="6"/>
             <image:gaussian-blur radius="6"/>
         </tn:processor>
     </tn:thumbnails>

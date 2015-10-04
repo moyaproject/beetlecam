@@ -24,11 +24,12 @@
             margin:0;
             background-image: url(${frame.filename|'thumbnail'(processor='blur')});
             background-size:cover;
+            background-attachment:fixed;
         }
 
         body:hover .frame-container
         {
-            width:calc(100vw - 400px);
+            width:calc(100vw - 300px);
             transition: width 1s;
         }
 
@@ -66,32 +67,21 @@
         {
             position:absolute;
             z-index:11;
-            width:400px;
+            width:300px;
             height:100vh;
             right:0px;
             color:#000;
             font-family: arial;
             font-size:12px;
             background-color:rgba(255,255,255,0.2);
-            padding:32px;
+            padding:4px;
             transition:margin-right 1s;
-            margin-right:-400px;
+            margin-right:-300px;
         }
 
         .info
         {
-            padding:8px;
-            /*background-color:rgba(255,255,255,0.05);*/
-        }
-
-        .frame-container img
-        {
-            position:absolute;
-             top:0;
-             bottom:0;
-             margin:auto;
-             padding:32px;
-             transform:scale(1.0);
+            padding:4px;
         }
 
         .refresh-bar
@@ -107,6 +97,40 @@
         {
             width:100%;
             transition:width ${.app.settings.refresh}s;
+        }
+
+        @media (max-width: 768px)
+        {
+            body::before
+            {
+                /*background-color:inherit;*/
+            }
+            body:hover .frame-container
+            {
+                width:100%;
+
+            }
+
+            body:hover .info-container
+            {
+                margin-right:0px;
+            }
+            .frame-container
+            {
+                width:100vw;
+                /*display:inline-block;
+                position:static;*/
+            }
+            .info-container
+            {
+                display:inline-block;
+                position:static;
+                margin-right:0px;
+                width:100%;
+                background-color:rgba(255,255,255,0.8);
+                margin-top:100vh;
+            }
+
         }
 
         </style>
