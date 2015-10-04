@@ -5,7 +5,7 @@
         <style type="text/css">
 
         * {
-            box-sizing: border-box;
+            box-sizing:border-box;
         }
         body:before
         {
@@ -26,22 +26,62 @@
             background-size:cover;
         }
 
+        body:hover .frame-container
+        {
+            width:calc(100vw - 400px);
+            transition: width 1s;
+        }
+
+        body:hover .info-container
+        {
+            margin-right:0px;
+        }
+
+        .frame
+        {
+            /* width:calc(50vw - 64px); */
+            height:calc(100vh - 64px);
+            margin:32px;
+            background-image:url({% url "serve" from 'serveuploads' with path=frame.filename %});
+            background-size: contain;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        .frame-border
+        {
+            padding: 32px;
+            display:block;
+        }
+
         .frame-container
         {
             position:absolute;
             z-index:10;
-            width:50vw;
-            height:100vh;
+            display:block;
+            width:100vw;
+            transition:width 1s;
         }
         .info-container
         {
             position:absolute;
             z-index:11;
-            width:50vw;
+            width:400px;
             height:100vh;
             right:0px;
             color:#000;
             font-family: arial;
+            font-size:12px;
+            background-color:rgba(255,255,255,0.2);
+            padding:32px;
+            transition:margin-right 1s;
+            margin-right:-400px;
+        }
+
+        .info
+        {
+            padding:8px;
+            /*background-color:rgba(255,255,255,0.05);*/
         }
 
         .frame-container img
@@ -51,6 +91,22 @@
              bottom:0;
              margin:auto;
              padding:32px;
+             transform:scale(1.0);
+        }
+
+        .refresh-bar
+        {
+            width:0;
+            height:2px;
+            background-color:magenta;
+            position:absolute;
+            top:0px;
+        }
+
+        .refresh-bar.countdown
+        {
+            width:100%;
+            transition:width ${.app.settings.refresh}s;
         }
 
         </style>
@@ -58,12 +114,29 @@
     </head>
 
     <body>
+
         <div class="frame-container">
-            <img width="100%" src="{% url "serve" from 'serveuploads' with path=frame.filename %}">
+            <div class="refresh-bar"></div>
+            <div class="frame"></div>
         </div>
         <div class="info-container">
-            <p>Hello</p>
+            <div class="info">
+                {% include "info.html" %}
+            </div>
         </div>
+
+        <script src="{% media 'js/jquery.js' from 'moya.twitter.bootstrap' %}"></script>
+        <script>
+            function refresh()
+            {
+
+            }
+            $(function(){
+                $('.refresh-bar').addClass('countdown');
+                setTimeout(refresh, ${.app.settings.refresh} * 1000);
+            });
+
+        </script>
     </body>
 
 </html>

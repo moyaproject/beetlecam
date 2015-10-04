@@ -1,0 +1,11 @@
+<p>
+    ${.settings.project_title}
+</p>
+<p>
+    ${localize:frame.taken}
+</p>
+<p>
+    <a href="{% url "serve" from 'serveuploads' with path=frame.filename %}" target="_blank">
+        {% url "serve" from 'serveuploads' with path=frame.filename %}
+    </a>
+</p>
