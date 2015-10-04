@@ -1,3 +1,7 @@
+<!--
+So simple, everything is in one file!
+-->
+
 <moya xmlns="http://moyaproject.com"
     xmlns:let="http://moyaproject.com/let"
     xmlns:db="http://moyaproject.com/db"
@@ -6,20 +10,25 @@
     xmlns:tn="http://moyaproject.com/thumbnail"
     xmlns:image="http://moyaproject.com/image">
 
+    <!-- Defines a table in the database, one row for each image -->
     <model libname="Frame" xmlns="http://moyaproject.com/db">
         <datetime name="taken" />
         <string name="filename" length="50" />
     </model>
 
+    <!-- Mountpoints map URLs on to views -->
     <mountpoint name="main">
-        <url route="/" methods="GET,POST" view="#view.frame.show" name="show_frame" />
+        <url route="/" methods="GET" view="#view.frame.show" name="show_frame" />
         <url route="/upload/" methods="GET,POST" view="#view.frame.upload" name="upload_frame" />
+        <url route="/update/" methods="GET" view="#view.frame.update" name="update_frame" />
     </mountpoint>
 
+    <!-- Get the most recent frame in detabase and render a template -->
     <view libname="view.frame.show" template="frame.html">
         <db:get model="#Frame" orderby="-taken" dst="frame" />
     </view>
 
+    <!-- This defines the form used in the upload page -->
     <form libname="form.frame.upload" style="horizontal" xmlns="http://moyaproject.com/forms">
         <input name="taken" label="Taken" type="integer" initial="int:.now.utc.epoch" help="epoch time" required="yes"/>
         <input name="password" label="Password" required="yes" help="see settings.ini for the password"/>
@@ -32,12 +41,14 @@
         </validate-field>
     </form>
 
+    <!-- Defines the layout of the upload page (just the form) -->
     <content libname="content.base" final="yes">
         <section name="body">
             <render src="form" />
         </section>
     </content>
 
+    <!-- View to create a new Frame object in the database and copy the file -->
     <view libname="view.frame.upload" content="#content.base">
         <forms:get form="#form.frame.upload" dst="form" />
         <forms:validate src="form">
@@ -49,11 +60,24 @@
         </forms:validate>
     </view>
 
+    <!-- View to get JSON containing updated information (polled by JS) -->
+    <view libname="view.frame.update">
+        <db:get model="#Frame" orderby="-taken" dst="frame" />
+        <dict dst="result">
+            <render-template template="info.html" let:frame="frame" dst="info_html"/>
+            <get-url name="serve" from="serveuploads" let:path="frame.filename" dst="image_url" />
+        </dict>
+        <serve-json obj="result"/>
+    </view>
+
+    <!-- Define how to process thumbnails -->
     <tn:thumbnails libname="thumbnails" name="cam">
+        <!-- Make a blurry background (can be done in CSS, but not on all browsers)-->
         <tn:processor name="blur" version="6" quality="70">
             <image:resize-to-fit width="640" height="480" resample="nearest"/>
             <image:gaussian-blur radius="6"/>
         </tn:processor>
+        <!-- Make a small square version to use as a favicon -->
         <tn:processor name="favicon" format="png">
             <image:square/>
             <image:resize width="64" height="64"/>
