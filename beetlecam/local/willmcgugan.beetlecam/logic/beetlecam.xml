@@ -42,7 +42,7 @@
         <forms:get form="#form.frame.upload" dst="form" />
         <forms:validate src="form">
             <let taken="datetime:form.data.taken" />
-            <str dst="filename">${taken.year}/${taken.month}/${taken.day}/frame${taken.hour}-${taken.minute}-${taken.second}.jpg</str>
+            <str dst="filename">${taken.year}/${taken.month}/${taken.day}/frame${taken.hour::'02'}-${taken.minute::'02'}-${taken.second::'02'}.jpg</str>
             <fs:set-contents fs="uploads" path="${filename}" contents="form.data.image"/>
             <db:create model="#Frame" let:taken="taken" let:filename="filename"/>
             <forms:get form="#form.frame.upload" dst="form" bind="None"/>
