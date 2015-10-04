@@ -11,38 +11,31 @@
         {
             content:' ';
             display:block;
-            background-color:rgba(255,255,255,0.7);
+            background-color:rgba(255,255,255,0.6);
             width:100vw;
             height:100vh;
             position:absolute;
+            top:0px;
         }
         body
         {
             width:100%;
-            height:100%;
+            /*height:100%;*/
             padding:0;
             margin:0;
             background-image: url(${frame.filename|'thumbnail'(processor='blur')});
             background-size:cover;
             background-attachment:fixed;
+            overflow-x:hidden;
         }
 
-        body:hover .frame-container
-        {
-            width:calc(100vw - 300px);
-            transition: width 1s;
-        }
-
-        body:hover .info-container
-        {
-            margin-right:0px;
-        }
 
         .frame
         {
+            position:relative;
             /* width:calc(50vw - 64px); */
             height:calc(100vh - 64px);
-            margin:32px;
+            margin:32px 32px 0px 32px;
             background-image:url({% url "serve" from 'serveuploads' with path=frame.filename %});
             background-size: contain;
             background-position: center center;
@@ -57,7 +50,7 @@
 
         .frame-container
         {
-            position:absolute;
+         /*   position:absolute;*/
             z-index:10;
             display:block;
             width:100vw;
@@ -65,23 +58,33 @@
         }
         .info-container
         {
+            /*
             position:absolute;
             z-index:11;
             width:300px;
             height:100vh;
             right:0px;
+            */
+
             color:#000;
             font-family: arial;
             font-size:12px;
             background-color:rgba(255,255,255,0.2);
             padding:4px;
             transition:margin-right 1s;
-            margin-right:-300px;
+
         }
 
         .info
         {
-            padding:4px;
+            position:absolute;
+            bottom:0px;
+            padding:0px 32px;
+            background-color:rgba(255,255,255,0.5);
+            margin: 0 auto;
+            z-index:20;
+            font-family:arial;
+            font-size:12px;
         }
 
         .refresh-bar
@@ -99,39 +102,6 @@
             transition:width ${.app.settings.refresh}s;
         }
 
-        @media (max-width: 768px)
-        {
-            body::before
-            {
-                /*background-color:inherit;*/
-            }
-            body:hover .frame-container
-            {
-                width:100%;
-
-            }
-
-            body:hover .info-container
-            {
-                margin-right:0px;
-            }
-            .frame-container
-            {
-                width:100vw;
-                /*display:inline-block;
-                position:static;*/
-            }
-            .info-container
-            {
-                display:inline-block;
-                position:static;
-                margin-right:0px;
-                width:100%;
-                background-color:rgba(255,255,255,0.8);
-                margin-top:100vh;
-            }
-
-        }
 
         </style>
 
@@ -139,14 +109,14 @@
 
     <body>
 
+<a href="https://github.com/moyaproject/beetlecam"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:100" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+
+<div class="info">
+                {% include "info.html" %}
+            </div>
         <div class="frame-container">
             <div class="refresh-bar"></div>
             <div class="frame"></div>
-        </div>
-        <div class="info-container">
-            <div class="info">
-                {% include "info.html" %}
-            </div>
         </div>
 
         <script src="{% media 'js/jquery.js' from 'moya.twitter.bootstrap' %}"></script>

@@ -2,8 +2,9 @@
     <strong>${.settings.project_title}</strong>
 </p>
 <p>
-    ${localize:frame.taken}
+    Photo taken: ${localize:frame.taken}
 </p>
+
 <p>
     <a href="{% url "serve" from 'serveuploads' with path=frame.filename %}" target="_blank">
         {% url "serve" from 'serveuploads' with path=frame.filename %}
