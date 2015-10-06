@@ -112,6 +112,8 @@ def main():
                             log.info('taking photo')
                             camera.capture('/tmp/frame.jpg')
                             uploader.upload('/tmp/frame.jpg')
+                        except (SystemExit, KeyboardInterrupt):
+                            raise
                         except:
                             log.exception('failed to take photo')
                     else:
@@ -127,6 +129,3 @@ if __name__ == "__main__":
                         level=logging.INFO)
 
     sys.exit(main() or 0)
-
-#    uploader = Uploader("http://127.0.0.1:8000/upload/")
-#    uploader.upload(sys.argv[1])
