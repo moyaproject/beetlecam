@@ -1,3 +1,4 @@
+{% if frame %}
 <p>
     <strong>${.settings.project_title}</strong>
 &mdash;
@@ -9,3 +10,6 @@
         {% url "serve" from 'serveuploads' with path=frame.filename %}
     </a>
 </p>
+{% else %}
+<p>Awaiting first frame&hellip;</p>
+{% endif %}

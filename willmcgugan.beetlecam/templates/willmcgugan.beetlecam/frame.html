@@ -3,10 +3,11 @@
     <head>
         <title>${.settings.project_title}</title>
 
-
+        {% if frame %}
         <link rel="icon"
               type="image/png"
               href="${frame.filename|'thumbnail'(processor='favicon')}">
+        {% endif %}
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -99,11 +100,7 @@
         <a href="https://github.com/moyaproject/beetlecam"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:100" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
 
         <div class="info">
-            {% if frame %}
             {% include "info.html" %}
-            {% else %}
-            <p>Waiting for first frame!</p>
-            {% end %}
         </div>
         <div class="frame-container">
             <div class="refresh-bar"></div>
@@ -112,16 +109,25 @@
 
         <script src="{% media 'js/jquery.js' from 'moya.twitter.bootstrap' %}"></script>
         <script>
+            image_url = $('.frame').css('background-image');
             function refresh()
             {
                 $('.refresh-bar').removeClass('countdown');
                 $.getJSON('/update/', function(result){
-                    var img = new Image();
-                    img.onload = function(){
-                        $('.info').html(result.info_html);
-                        $('.frame').css('background-image', 'url(' + result.image_url + ')')
+                    if(result.image_url && image_url != 'none')
+                    {
+                        var img = new Image();
+                        img.onload = function(){
+                            $('.info').html(result.info_html);
+                            $('.frame').css('background-image', 'url(' + result.image_url + ')')
+                        }
+                        img.src = result.image_url;
                     }
-                    img.src = result.image_url;
+                    else
+                    {
+                        window.location.reload();
+                    }
+                    image_url = result.image_url;
                 }).always(function(){
                     setTimeout(refresh, ${.app.settings.refresh} * 1000);
                     $('.refresh-bar').addClass('countdown');

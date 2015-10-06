@@ -1,0 +1,1 @@
+Libraries local to the project (i.e. authored by youself)

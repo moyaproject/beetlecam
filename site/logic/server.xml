@@ -20,10 +20,11 @@
         <install name="diagnostics" lib="moya.diagnostics" if="not .debug"/>
         <install name="bootstrap" lib="moya.twitter.bootstrap"/>
         <install name="thumbs" lib="moya.thumbnail"/>
+        <install name="servethumbs" lib="moya.static" mount="/thumbs/"/>
         <install name="serveuploads" lib="moya.static" mount="/uploads/"/>
 
         <!--Added by 'moya start library'-->
-        <import location="./local/willmcgugan.beetlecam"/>
+        <import location="../willmcgugan.beetlecam"/>
         <install name="beetlecam" lib="willmcgugan.beetlecam" mount="/"/>
 
 </server>

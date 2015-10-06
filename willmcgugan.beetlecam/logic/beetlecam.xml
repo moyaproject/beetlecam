@@ -56,6 +56,7 @@ So simple, everything is in one file!
             <str dst="filename">${taken.year}/${taken.month}/${taken.day}/frame${taken.hour::'02'}-${taken.minute::'02'}-${taken.second::'02'}.jpg</str>
             <fs:set-contents fs="uploads" path="${filename}" contents="form.data.image"/>
             <db:create model="#Frame" let:taken="taken" let:filename="filename"/>
+            <set-header header="beetlecam_upload">received ${filename}</set-header>
             <forms:get form="#form.frame.upload" dst="form" bind="None"/>
         </forms:validate>
     </view>
@@ -63,6 +64,7 @@ So simple, everything is in one file!
     <!-- View to get JSON containing updated information (polled by JS) -->
     <view libname="view.frame.update">
         <db:get model="#Frame" orderby="-taken" dst="frame" />
+        <serve-json obj="{}" if="not frame"/>
         <dict dst="result">
             <render-template template="info.html" let:frame="frame" dst="info_html"/>
             <get-url name="serve" from="serveuploads" let:path="frame.filename" dst="image_url" />
@@ -74,7 +76,7 @@ So simple, everything is in one file!
     <tn:thumbnails libname="thumbnails" name="cam">
         <!-- Make a blurry background (can be done in CSS, but not on all browsers)-->
         <tn:processor name="blur" version="6" quality="70">
-            <image:resize-to-fit width="640" height="480" resample="nearest"/>
+            <image:resize-to-fit width="800" height="800" resample="nearest"/>
             <image:gaussian-blur radius="6"/>
         </tn:processor>
         <!-- Make a small square version to use as a favicon -->
