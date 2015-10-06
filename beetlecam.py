@@ -1,9 +1,9 @@
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import sys
 import time
 import logging
+import argparse
 
 try:
     import requests
@@ -19,6 +19,7 @@ class Uploader(object):
     def __init__(self, url, password='beetle'):
         self.url = url
         self.password = password
+        log.info('uploader url is {}'.format(url))
 
     def upload(self, filename, timestamp=None):
         if timestamp is None:
@@ -52,9 +53,80 @@ class Uploader(object):
         return True
 
 
+def make_argparser():
+    parser = argparse.ArgumentParser(description='run a webcam')
+
+    subparsers = parser.add_subparsers(help='sub-command help', dest="action")
+
+    run_parser = subparsers.add_parser('run', help='run the webcam')
+    upload_parser = subparsers.add_parser('upload', help='upload a single image')
+
+    upload_parser.add_argument(dest='filename',
+                               help='file to upload')
+    upload_parser.add_argument('-u', '--url', dest="cam_url", default="127.0.0.1:8000",
+                               help="url of the server")
+    upload_parser.add_argument('-p', '--password', dest="password", default="beetle",
+                               help="web app password")
+
+    run_parser.add_argument('-u', '--url', dest="cam_url", default="127.0.0.1:8000",
+                            help="url of the server")
+    run_parser.add_argument('-r', '--rate', dest="rate", default=60, type=int,
+                            help="delay (in seconds) between photos")
+    run_parser.add_argument('-p', '--password', dest="password", default="beetle",
+                            help="web app password")
+
+    return parser
+
+
+def main():
+    parser = make_argparser()
+    args = parser.parse_args()
+
+    def make_uploader():
+        update_url = args.cam_url.rstrip('/') + '/upload/'
+        if '://' not in update_url:
+            update_url = "http://" + update_url
+        uploader = Uploader(update_url, password=args.password)
+        return uploader
+
+    if args.action == "upload":
+        uploader = make_uploader()
+        uploader.upload(args.filename)
+
+    if args.action == "run":
+        uploader = make_uploader()
+        next_frame = time.time()
+        try:
+            import picamera
+        except ImportError:
+            print('please insall picamera with "pip install picamera"')
+            return -1
+        with picamera.PiCamera() as camera:
+            camera.resolution = (1024, 768)
+            try:
+
+                while 1:
+                    if time.time() >= next_frame:
+                        next_frame += args.rate * 1000
+                        try:
+                            log.info('taking photo')
+                            camera.capture('/tmp/frame.jpg')
+                            uploader.upload('/tmp/frame.jpg')
+                        except:
+                            log.exception('failed to take photo')
+                    else:
+                        time.sleep(1)
+
+            except SystemExit:
+                return 0
+
+
+
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)-15s %(message)s',
                         level=logging.INFO)
 
-    uploader = Uploader("http://127.0.0.1:8000/upload/")
-    uploader.upload(sys.argv[1])
+    sys.exit(main() or 0)
+
+#    uploader = Uploader("http://127.0.0.1:8000/upload/")
+#    uploader.upload(sys.argv[1])
