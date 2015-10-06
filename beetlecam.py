@@ -70,7 +70,7 @@ def make_argparser():
 
     run_parser.add_argument('-u', '--url', dest="cam_url", default="127.0.0.1:8000",
                             help="url of the server")
-    run_parser.add_argument('-r', '--rate', dest="rate", default=60, type=int,
+    run_parser.add_argument('-r', '--rate', dest="rate", default=60.0, type=float,
                             help="delay (in seconds) between photos")
     run_parser.add_argument('-p', '--password', dest="password", default="beetle",
                             help="web app password")
@@ -107,7 +107,7 @@ def main():
 
                 while 1:
                     if time.time() >= next_frame:
-                        next_frame += args.rate * 1000
+                        next_frame += args.rate
                         try:
                             log.info('taking photo')
                             camera.capture('/tmp/frame.jpg')
@@ -117,7 +117,7 @@ def main():
                     else:
                         time.sleep(1)
 
-            except SystemExit:
+            except (SystemExit, KeyboardInterrupt):
                 return 0
 
 
