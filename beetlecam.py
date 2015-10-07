@@ -22,6 +22,7 @@ class Uploader(object):
         log.info('uploader url is {}'.format(url))
 
     def upload(self, filename, timestamp=None):
+
         if timestamp is None:
             timestamp = time.time()
 
@@ -74,6 +75,12 @@ def make_argparser():
                             help="delay (in seconds) between photos")
     run_parser.add_argument('-p', '--password', dest="password", default="beetle",
                             help="web app password")
+    run_parser.add_argument('-q', '--quality', dest="quality", default=50, type=int,
+                            help="Quality of JPEG image (1-100)")
+    run_parser.add_argument('-s', '--size', dest="size", nargs=2, metavar=("WIDTH", "HEIGHT"), type=int, default=None,
+                            help="Size of frame")
+    run_parser.add_argument('-i', '--iso', metavar="ISO", default=None, type=int,
+                            help="Camera sensitivity")
 
     return parser
 
@@ -81,6 +88,7 @@ def make_argparser():
 def main():
     parser = make_argparser()
     args = parser.parse_args()
+    print(args)
 
     def make_uploader():
         update_url = args.cam_url.rstrip('/') + '/upload/'
@@ -103,6 +111,8 @@ def main():
             return -1
         with picamera.PiCamera() as camera:
             camera.resolution = (1024, 768)
+            if args.iso is not None:
+                camera.iso = args.iso
             try:
 
                 while 1:
@@ -110,8 +120,11 @@ def main():
                         next_frame += args.rate
                         try:
                             log.info('taking photo')
-                            camera.capture('/tmp/frame.jpg')
-                            uploader.upload('/tmp/frame.jpg')
+                            capture_time = time.time()
+                            camera.capture('/tmp/frame.jpg',
+                                           quality=args.quality,
+                                           resize=args.size)
+                            uploader.upload('/tmp/frame.jpg', timestamp=capture_time)
                         except (SystemExit, KeyboardInterrupt):
                             raise
                         except:
@@ -121,7 +134,6 @@ def main():
 
             except (SystemExit, KeyboardInterrupt):
                 return 0
-
 
 
 if __name__ == "__main__":
