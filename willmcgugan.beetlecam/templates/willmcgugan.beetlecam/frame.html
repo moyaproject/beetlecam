@@ -3,6 +3,9 @@
     <head>
         <title>${.settings.project_title}</title>
 
+        <meta property="og:image" content="{% url "serve" from 'serveuploads' with path=frame.filename base .request.host_url %}" />
+        <meta name="twitter:image" content="{% url "serve" from 'serveuploads' with path=frame.filename base .request.host_url %}" />
+
         {% if frame %}
         <link rel="icon"
               type="image/png"
@@ -91,6 +94,11 @@
             transition:width ${.app.settings.refresh}s;
         }
 
+        img.frame-image
+        {
+            display:none;
+        }
+
         </style>
 
     </head>
@@ -98,6 +106,8 @@
     <body>
 
         <a href="https://github.com/moyaproject/beetlecam"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:100" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+
+        <img src="{% url "serve" from 'serveuploads' with path=frame.filename base .request.host_url %}" class="frame-image"/>
 
         <div class="info">
             {% include "info.html" %}
