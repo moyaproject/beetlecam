@@ -3,6 +3,7 @@ So simple, everything is in one file!
 -->
 
 <moya xmlns="http://moyaproject.com"
+    xmlns:m="http://moyaproject.com"
     xmlns:let="http://moyaproject.com/let"
     xmlns:db="http://moyaproject.com/db"
     xmlns:forms="http://moyaproject.com/forms"
@@ -23,14 +24,15 @@ So simple, everything is in one file!
         <url route="/update/" methods="GET" view="#view.frame.update" name="update_frame" />
     </mountpoint>
 
-    <!-- Get the most recent frame in detabase and render a template -->
+    <!-- Get the most recent frame in database and render a template -->
     <view libname="view.frame.show" template="frame.html">
         <db:get model="#Frame" orderby="-taken" dst="frame" />
     </view>
 
     <!-- This defines the form used in the upload page -->
-    <form libname="form.frame.upload" style="horizontal" xmlns="http://moyaproject.com/forms">
-        <input name="taken" label="Taken" type="integer" initial="int:.now.utc.epoch" help="epoch time" required="yes"/>
+    <form libname="form.frame.upload" style="horizontal" xmlns="http://moyaproject.com/forms" legend="Upload a New Cam Image">
+        <input name="taken" label="Taken" type="integer" initial="int:.now.utc.epoch" required="yes"/>
+        <field><m:markdown>Click [here](https://en.wikipedia.org/wiki/Unix_time) for an explanation of *epoch time*</m:markdown></field>
         <input name="password" label="Password" required="yes" help="see settings.ini for the password"/>
         <upload name="image" label="Upload" required="yes"/>
         <submit-button text="Upload"/>
@@ -49,26 +51,40 @@ So simple, everything is in one file!
     </content>
 
     <!-- View to create a new Frame object in the database and copy the file -->
+    <!-- This can be called from beetlecam.py or by visiting /upload/ -->
     <view libname="view.frame.upload" content="#content.base">
+        <!-- get the form (defined a few lines above) -->
         <forms:get form="#form.frame.upload" dst="form" />
+        <!-- validate the form (if its a POST request) -->
         <forms:validate src="form">
-            <let taken="(epoch:form.data.taken).local" />
+            <!-- Convert the epoch time in the form to a datetime object -->
+            <let taken="epoch:form.data.taken" />
+            <!-- Make a unique filename for the uplaoded image-->
             <str dst="filename">${taken.year}/${taken.month}/${taken.day}/frame${taken.hour::'02'}-${taken.minute::'02'}-${taken.second::'02'}.jpg</str>
+            <!-- Copy the file to the 'uploads' filesystem -->
             <fs:set-contents fs="uploads" path="${filename}" contents="form.data.image"/>
+            <!-- Create a Frame object in the database -->
             <db:create model="#Frame" let:taken="taken" let:filename="filename"/>
+            <!-- Add a message to the response that beetlecam.py can display -->
             <set-header header="beetlecam_upload">received ${filename}</set-header>
+            <!-- Get a fresh copy of the form -->
             <forms:get form="#form.frame.upload" dst="form" bind="None"/>
         </forms:validate>
     </view>
 
-    <!-- View to get JSON containing updated information (polled by JS) -->
+    <!-- View to get JSON containing updated information (polled by Javascript) -->
+    <!-- Serves the URL /update/ -->
     <view libname="view.frame.update">
+        <!-- Get the most recent frame -->
         <db:get model="#Frame" orderby="-taken" dst="frame" />
+        <!-- If there is no frame, serve an empty object -->
         <serve-json obj="{}" if="not frame"/>
+        <!-- Make an object with the info_html and the URL of the frame -->
         <dict dst="result">
             <render-template template="info.html" let:frame="frame" dst="info_html"/>
             <get-url name="serve" from="serveuploads" let:path="frame.filename" dst="image_url" />
         </dict>
+        <!-- Serve result as JSON -->
         <serve-json obj="result"/>
     </view>
 
@@ -86,4 +102,26 @@ So simple, everything is in one file!
         </tn:processor>
     </tn:thumbnails>
 
+
+    <!-- Make a timelapse video from a sequence of frames -->
+    <command libname="cmd.makevideo" synopsis="Make a timelapse vide (requires mencoder)">
+        <signature>
+            <option name="timespan" help="timespan to export (e.g 1h, 2d etc)" default="1d"/>
+            <option name="output" help="filename of output video" default="beetles.avi"/>
+        </signature>
+        <let timespan="timespan:args.timespan"/>
+        <echo>Generating ${timespan} worth of video</echo>
+        <!-- Query the database for frames in the timespan -->
+        <db:query model="#Frame" dst="paths"
+            filter="#Frame.taken gte .now - timespan"
+            orderby="taken" columns="#Frame.filename" flat="yes"/>
+        <!-- Get the base of filesystem -->
+        <fs:get-syspath fs="uploads" path="/" dst="basedir"/>
+        <!-- Join the paths with the filesystem base -->
+        <map src="paths" value="slashjoin:[basedir, $$]" dst="inputs"/>
+        <!-- Build the command to mencoder -->
+        <str dst="command">mencoder mf://${joinwith:[inputs, ',']} -quiet -mf w=800:h=600:fps=25:type=jpg -vf scale=800:600 -ovc copy -oac copy -o ${args.output}</str>
+        <!-- Call mencoder, write output to console -->
+        <system-call shell="${command}" console="yes"/>
+    </command>
 </moya>

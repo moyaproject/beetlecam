@@ -88,7 +88,6 @@ def make_argparser():
 def main():
     parser = make_argparser()
     args = parser.parse_args()
-    print(args)
 
     def make_uploader():
         update_url = args.cam_url.rstrip('/') + '/upload/'
