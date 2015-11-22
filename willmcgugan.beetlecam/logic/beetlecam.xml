@@ -109,8 +109,21 @@ So simple, everything is in one file!
             <option name="timespan" help="timespan to export (e.g 1h, 2d etc)" default="1d"/>
             <option name="output" help="filename of output video" default="beetles.avi"/>
         </signature>
+
+        <!-- Build command to generate list of frames -->
+        <str dst="frames_command">moya beetlecam#cmd.listframes "${args.timespan}" &gt; frames.txt</str>
+        <system-call shell="${frames_command}" console="yes"/>
+
+        <!-- Build the command to mencoder -->
+        <str dst="command">mencoder mf://@frames.txt -quiet -mf w=800:h=600:fps=25:type=jpg -vf scale=800:600 -ovc copy -oac copy -o ${args.output}</str>
+        <system-call shell="${command}" console="yes"/>
+    </command>
+
+    <command libname="cmd.listframes" synopsis="List frame image paths">
+        <signature>
+            <arg name="timespan" help="timespan to export (e.g 1h, 2d etc)"/>
+        </signature>
         <let timespan="timespan:args.timespan"/>
-        <echo>Generating ${timespan} worth of video</echo>
         <!-- Query the database for frames in the timespan -->
         <db:query model="#Frame" dst="paths"
             filter="#Frame.taken gte .now - timespan"
@@ -119,9 +132,8 @@ So simple, everything is in one file!
         <fs:get-syspath fs="uploads" path="/" dst="basedir"/>
         <!-- Join the paths with the filesystem base -->
         <map src="paths" value="slashjoin:[basedir, $$]" dst="inputs"/>
-        <!-- Build the command to mencoder -->
-        <str dst="command">mencoder mf://${joinwith:[inputs, ',']} -quiet -mf w=800:h=600:fps=25:type=jpg -vf scale=800:600 -ovc copy -oac copy -o ${args.output}</str>
-        <!-- Call mencoder, write output to console -->
-        <system-call shell="${command}" console="yes"/>
+        <!-- write list of filenames, one per line -->
+        <echo>${joinwith:[inputs, '\n']}</echo>
     </command>
+
 </moya>
