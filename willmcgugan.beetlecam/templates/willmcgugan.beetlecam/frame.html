@@ -3,10 +3,10 @@
     <head>
         <title>${.settings.project_title}</title>
 
+        {% if frame %}
         <meta property="og:image" content="{% url "serve" from 'serveuploads' with path=frame.filename base .request.host_url %}" />
         <meta name="twitter:image" content="{% url "serve" from 'serveuploads' with path=frame.filename base .request.host_url %}" />
 
-        {% if frame %}
         <link rel="icon"
               type="image/png"
               href="${frame.filename|'thumbnail'(processor='favicon')}">
@@ -147,7 +147,6 @@
                 $('.refresh-bar').addClass('countdown');
                 setTimeout(refresh, ${.app.settings.refresh} * 1000);
             });
-
         </script>
     </body>
 
