@@ -19,17 +19,21 @@ So simple, everything is in one file!
 
     <!-- Mountpoints map URLs on to views -->
     <mountpoint name="main">
+        <!-- https://beetlecam.moyaproject.com/ -->
         <url route="/" methods="GET" view="#view.frame.show" name="show_frame" />
+        <!-- https://beetlecam.moyaproject.com/upload/ -->
         <url route="/upload/" methods="GET,POST" view="#view.frame.upload" name="upload_frame" />
+        <!-- https://beetlecam.moyaproject.com/update/ -->
         <url route="/update/" methods="GET" view="#view.frame.update" name="update_frame" />
     </mountpoint>
 
     <!-- Get the most recent frame in database and render a template -->
     <view libname="view.frame.show" template="frame.html">
+        <!-- Query Frame objects, sort be reverse time taken, take the first one -->
         <db:get model="#Frame" orderby="-taken" dst="frame" />
     </view>
 
-    <!-- This defines the form used in the upload page -->
+    <!-- This defines the form used in the upload page (https://beetlecam.moyaproject.com/upload/) -->
     <form libname="form.frame.upload" style="horizontal" xmlns="http://moyaproject.com/forms" legend="Upload a New Cam Image">
         <input name="taken" label="Taken" type="integer" initial="int:.now.utc.epoch" required="yes"/>
         <field><m:markdown>Click [here](https://en.wikipedia.org/wiki/Unix_time) for an explanation of *epoch time*</m:markdown></field>
@@ -37,13 +41,14 @@ So simple, everything is in one file!
         <upload name="image" label="Upload" required="yes"/>
         <submit-button text="Upload"/>
         <validate-field field="password">
+            <!-- Implement a password so not just anyone can upload an image -->
             <fail if="value!=.app.settings.password">
                 Password didn't match!
             </fail>
         </validate-field>
     </form>
 
-    <!-- Defines the layout of the upload page (just the form) -->
+    <!-- Defines the layout of the /upload/ (a very simple page that contains a form) -->
     <content libname="content.base" final="yes">
         <section name="body">
             <render src="form" />
@@ -102,8 +107,8 @@ So simple, everything is in one file!
         </tn:processor>
     </tn:thumbnails>
 
-
     <!-- Make a timelapse video from a sequence of frames -->
+    <!-- Run with 'moya beetlecam#cmd.makevideo' -->
     <command libname="cmd.makevideo" synopsis="Make a timelapse video (requires mencoder)">
         <signature>
             <option name="timespan" help="timespan to export (e.g 1h, 2d etc)" default="1d"/>
@@ -119,6 +124,8 @@ So simple, everything is in one file!
         <system-call shell="${command}" console="yes"/>
     </command>
 
+    <!-- A command to list all frames in a time period -->
+    <!-- Run with 'moya beetlecam#cmd.listframes' -->
     <command libname="cmd.listframes" synopsis="List frame image paths">
         <signature>
             <arg name="timespan" help="timespan to export (e.g 1h, 2d etc)"/>
