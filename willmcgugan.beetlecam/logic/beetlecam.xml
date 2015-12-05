@@ -59,7 +59,7 @@ So simple, everything is in one file!
         <forms:validate src="form">
             <!-- Convert the epoch time in the form to a datetime object -->
             <let taken="epoch:form.data.taken" />
-            <!-- Make a unique filename for the uplaoded image-->
+            <!-- Make a unique filename for the uploaded image-->
             <str dst="filename">${taken.year}/${taken.month}/${taken.day}/frame${taken.hour::'02'}-${taken.minute::'02'}-${taken.second::'02'}.jpg</str>
             <!-- Copy the file to the 'uploads' filesystem -->
             <fs:set-contents fs="uploads" path="${filename}" contents="form.data.image"/>
@@ -104,7 +104,7 @@ So simple, everything is in one file!
 
 
     <!-- Make a timelapse video from a sequence of frames -->
-    <command libname="cmd.makevideo" synopsis="Make a timelapse vide (requires mencoder)">
+    <command libname="cmd.makevideo" synopsis="Make a timelapse video (requires mencoder)">
         <signature>
             <option name="timespan" help="timespan to export (e.g 1h, 2d etc)" default="1d"/>
             <option name="output" help="filename of output video" default="beetles.avi"/>
